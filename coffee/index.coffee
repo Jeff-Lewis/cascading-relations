@@ -10,22 +10,20 @@ module.exports = (schema, options) ->
 	.set (val) ->
 		@$__.related = val
 
-	schema.set 'toObject', 
+	schema.set 'toObject',
 		virtuals:true
 
 	schema.set 'toJSON',
 		virtuals:true
 
-
 	# Move populated docs over to _related and keep the original IDs
 	schema.post 'init', (next) ->
 		@$__movePopulated()
-		
-		
+
 		return true
 
 	schema.methods.$__movePopulated = (paths=null) ->
-		
+
 		if @$__.populated?
 			if !@_related?
 				@_related = {}
@@ -34,7 +32,7 @@ module.exports = (schema, options) ->
 			if paths
 				if !(paths instanceof Array)
 					paths = [paths]
-			else 
+			else
 				paths = _.keys(@$__.populated)
 			for path in paths
 				info = @$__.populated[path]
@@ -73,7 +71,7 @@ module.exports = (schema, options) ->
 				callback(err, doc)
 
 		mongoose.Document.prototype.populate.apply(@, args)
-			
+
 
 
 	schema.methods.cascadeSave = (callback, config=null) ->
@@ -85,7 +83,7 @@ module.exports = (schema, options) ->
 	schema.methods.$__saveRelation = (path, val) ->
 		deferred = Q.defer()
 
-		
+
 
 
 		allowedRelation = (rel) =>
@@ -97,7 +95,7 @@ module.exports = (schema, options) ->
 		if @$__.cascadeSaveConfig and @$__.cascadeSaveConfig.limit and !allowedRelation(path)
 			deferred.resolve()
 			return deferred.promise
-		
+
 		promises = []
 		if @schema.paths[path]
 			if @schema.paths[path].instance is 'ObjectID' and @schema.paths[path].options.ref?
@@ -154,7 +152,7 @@ module.exports = (schema, options) ->
 				promises.push(@$__saveRelatedDoc(path, doc, ref, through))
 
 			Q.all(promises).then (results) =>
-				
+
 				# Reorder according to the IDs
 				@$__.populateRelations[path] = {}
 				for result in results
@@ -189,7 +187,7 @@ module.exports = (schema, options) ->
 			filter = null
 
 		modelClass = mongoose.model(ref)
-		
+
 		# If there's an ID, fetch the object and update it.
 		# Should we use middleware here? Or just findByIdAndUpdate?
 		orig = @get(path)
@@ -242,7 +240,7 @@ module.exports = (schema, options) ->
 						return deferred.reject(err)
 
 					deferred.resolve(res)
-				, 
+				,
 					limit:newArr
 					filter:filter
 		else
@@ -273,7 +271,7 @@ module.exports = (schema, options) ->
 				if err
 					return deferred.reject(err)
 				deferred.resolve(res)
-			, 
+			,
 				limit:newArr
 				filter:filter
 
@@ -337,7 +335,7 @@ module.exports = (schema, options) ->
 		ref = @schema.paths[path].caster.options.ref
 		cascade = @schema.paths[path].caster.options.$cascadeDelete
 		through = @schema.paths[path].caster.options.$through
-		
+
 		data = @get(path)
 		for id in data
 			@$__handleDeletionOfDoc(ref, id, cascade, through)
@@ -350,7 +348,7 @@ module.exports = (schema, options) ->
 			modelClass.findById id, (err, res) ->
 				if res
 					res.remove()
-		
+
 		# Otherwise, we need to update its $through value to not reference this one anymore
 		else if through
 			modelClass.findById id, (err, res) ->
@@ -367,5 +365,5 @@ module.exports = (schema, options) ->
 		# delete if designated
 		for path,config of @schema.paths
 			@$__handleDeletion(path)
-		
+
 

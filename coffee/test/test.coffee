@@ -121,7 +121,7 @@ describe 'Testing', ->
 
 			, 5000
 
-	
+
 
 	it 'should cascade save multiple levels deep', (done) ->
 		foo = new fooClass
@@ -177,7 +177,7 @@ describe 'Testing', ->
 			@foo = res
 			should.not.exist(res._related._bar._baz)
 			done()
-		, 
+		,
 			limit:['_bar', 'multi._bar', 'multi._bar._baz']
 			filter:(doc) ->
 				doc.account = @account
@@ -260,7 +260,7 @@ describe 'Testing', ->
 			notes: []
 			_related: undefined
 			id: "52cc929a90b078e563000024"
-				
+
 		dot.set(obj, 'tenants._former', [], true)
 		obj.tenants._current.name.first.should.equal('Foo')
 
@@ -291,7 +291,7 @@ describe 'Testing', ->
 						title:'Second Bar'
 				]
 		foo.cascadeSave (err, res) =>
-			
+
 			fooClass.findById res._id, (err, foo) ->
 				foo.populate '_bars', (err, foo) ->
 					should.exist(foo._related)
@@ -308,7 +308,7 @@ describe 'Testing', ->
 					_bar:
 						title:'First Bar'
 		foo.cascadeSave (err, res) =>
-			
+
 			fooClass.findById res._id, (err, foo) ->
 				foo.populate 'multi._bar', (err, foo) ->
 					should.exist(foo._related)
